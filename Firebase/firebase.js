@@ -89,3 +89,5 @@ module.exports.addUserMemberProfile = async (data) => {
     throw new Error('Unable to add user profile');
   }
 };
+
+module.exports.admin = admin;

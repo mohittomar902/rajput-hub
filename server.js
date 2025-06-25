@@ -8,6 +8,7 @@ const userService = require('./src/user-service');
 const { authenticateToken } = require('./utils/auth');
 const { userRequiredParameters } = require('./utils/constant');
 const { getdataValidationMiddleware } = require('./utils/dataValidation');
+const newsfeedRoutes = require('./src/newsfeed-routes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,6 +25,8 @@ app.post('/register',
 app.post('/verifyUser', userService.verifyEmailAndPhone);
 
 app.get('/get-user-profile', authenticateToken, userService.getUserData)
+
+app.use('/newsfeed', newsfeedRoutes);
 
 exports.app = functions.https.onRequest(app);
 
