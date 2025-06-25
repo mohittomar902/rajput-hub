@@ -26,3 +26,8 @@ app.post('/verifyUser', userService.verifyEmailAndPhone);
 app.get('/get-user-profile', authenticateToken, userService.getUserData)
 
 exports.app = functions.https.onRequest(app);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
