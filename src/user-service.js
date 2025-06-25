@@ -114,7 +114,7 @@ module.exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY);
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET_KEY);
 
         res.status(200).json(getResponseBody(200, 'logged in', { token }));
     } catch (error) {

@@ -19,7 +19,7 @@ module.exports.RequiredParameters = [
 module.exports.userRequiredParameters = [
     "fName",
     "lName",
-    "mobile",
+    "phoneNumber",
     "username",
     "password",
     "email",

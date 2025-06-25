@@ -56,16 +56,17 @@ module.exports.getUserByEmail = async (email) => {
 };
 
 module.exports.getUserByPhone = async (phoneNumber) => {
+  if (!phoneNumber) {
+    throw new Error('Phone number is required');
+  }
   try {
     const db = admin.firestore();
     const user = db.collection('users');
     const snapshot = await user.where('phoneNumber', '==', phoneNumber).get();
     if (snapshot.empty) {
-      return false
+      return false;
     }
-  
     return mapdbData(snapshot);
-    
   } catch (error) {
     console.error('Error fetching profiles:', error);
     throw new Error('Unable to fetch profiles');
