@@ -93,13 +93,26 @@ module.exports.verifyEmailAndPhone = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     try {
-        const userDoc = await db.collection('users').doc(email).get();
+        let userDoc;
+        // Simple email regex check
+        const isEmail = /^[^@]+@[^@]+\.[^@]+$/.test(username);
 
-        if (!userDoc.exists) {
-            return res.status(404).json({ error: 'User not found Pleaser Register' });
+        if (isEmail) {
+            // Query by email
+            const userQuery = await db.collection('users').where('email', '==', username).get();
+            if (userQuery.empty) {
+                return res.status(404).json({ error: 'User not found. Please register.' });
+            }
+            userDoc = userQuery.docs[0];
+        } else {
+            // Query by username (document ID)
+            userDoc = await db.collection('users').doc(username).get();
+            if (!userDoc.exists) {
+                return res.status(404).json({ error: 'User not found. Please register.' });
+            }
         }
 
         const user = userDoc.data();

@@ -6,7 +6,7 @@ const app = express()
 
 const userService = require('./src/user-service');
 const { authenticateToken } = require('./utils/auth');
-const { userRequiredParameters } = require('./utils/constant');
+const { userRequiredParameters, loginRequiredParameters } = require('./utils/constant');
 const { getdataValidationMiddleware } = require('./utils/dataValidation');
 const newsfeedRoutes = require('./src/newsfeed-routes');
 
@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.post('/login', userService.login);
+app.post('/login',getdataValidationMiddleware(loginRequiredParameters), userService.login);
 
 app.post('/register',
   getdataValidationMiddleware(userRequiredParameters),

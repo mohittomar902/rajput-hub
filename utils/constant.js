@@ -24,3 +24,8 @@ module.exports.userRequiredParameters = [
     "password",
     "email",
 ];
+
+module.exports.loginRequiredParameters = [
+    "username",
+    "password"
+];
