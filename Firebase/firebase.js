@@ -2,7 +2,7 @@
 const admin = require('firebase-admin');
 
 const { mapdbData } = require('../utils/commonUtils');
-const { firebaseConfig } = require('../Utils/config');
+const { firebaseConfig } = require('../utils/config');
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseConfig),
