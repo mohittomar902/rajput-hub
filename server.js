@@ -2,6 +2,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const express = require('express');
 const functions = require('firebase-functions');
+const cors = require('cors');
 const app = express()
 
 const userService = require('./src/user-service');
@@ -13,6 +14,7 @@ const newsfeedRoutes = require('./src/newsfeed-routes');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.post('/login',getdataValidationMiddleware(loginRequiredParameters), userService.login);
 
