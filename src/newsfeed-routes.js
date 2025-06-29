@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { db, admin } = require('../Firebase/firebase');
 const { authenticateToken } = require('../utils/auth');
+const logger = require('../utils/logger');
 
 // Create a post
 router.post('/posts', authenticateToken, async (req, res) => {
   try {
     const { content, imageUrl } = req.body;
-    const username = req.user.username;
+    const userId = req.user.id;
     const post = {
-      username,
+      userId,
       content,
       imageUrl: imageUrl || null,
       createdAt: new Date(),
@@ -17,10 +18,10 @@ router.post('/posts', authenticateToken, async (req, res) => {
       comments: [],
     };
     const docRef = await db.collection('posts').add(post);
-    console.log(docRef, username);
+    logger.info('Post created successfully', { postId: docRef.id, userId }, req.requestId);
     res.status(201).json({ id: docRef.id, ...post });
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to create post', error, req.requestId);
     res.status(500).json({ error: 'Failed to create post' });
   }
 });
@@ -28,14 +29,15 @@ router.post('/posts', authenticateToken, async (req, res) => {
 // Like a post
 router.post('/posts/:postId/like', authenticateToken, async (req, res) => {
   try {
-    const username = req.user.username;
+    const userId = req.user.id;
     const postRef = db.collection('posts').doc(req.params.postId);
     await postRef.update({
-      likes: admin.firestore.FieldValue.arrayUnion(username),
+      likes: admin.firestore.FieldValue.arrayUnion(userId),
     });
+    logger.info('Post liked successfully', { postId: req.params.postId, userId }, req.requestId);
     res.status(200).json({ message: 'Post liked' });
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to like post', error, req.requestId);
     res.status(500).json({ error: 'Failed to like post' });
   }
 });
@@ -43,10 +45,10 @@ router.post('/posts/:postId/like', authenticateToken, async (req, res) => {
 // Comment on a post
 router.post('/posts/:postId/comment', authenticateToken, async (req, res) => {
   try {
-    const username = req.user.username;
+    const userId = req.user.id;
     const { text } = req.body;
     const comment = {
-      username,
+      userId,
       text,
       createdAt: new Date(),
     };
@@ -54,9 +56,10 @@ router.post('/posts/:postId/comment', authenticateToken, async (req, res) => {
     await postRef.update({
       comments: admin.firestore.FieldValue.arrayUnion(comment),
     });
+    logger.info('Comment added successfully', { postId: req.params.postId, userId }, req.requestId);
     res.status(200).json({ message: 'Comment added' });
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to add comment', error, req.requestId);
     res.status(500).json({ error: 'Failed to add comment' });
   }
 });
@@ -66,9 +69,10 @@ router.get('/posts', authenticateToken, async (req, res) => {
   try {
     const snapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
     const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    logger.info('News feed retrieved successfully', { postCount: posts.length }, req.requestId);
     res.status(200).json(posts);
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to fetch posts', error, req.requestId);
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -76,24 +80,27 @@ router.get('/posts', authenticateToken, async (req, res) => {
 // Update a post
 router.put('/posts/:postId', authenticateToken, async (req, res) => {
   try {
-    const username = req.user.username;
+    const userId = req.user.id;
     const { content, imageUrl } = req.body;
     const postRef = db.collection('posts').doc(req.params.postId);
     const postDoc = await postRef.get();
     if (!postDoc.exists) {
+      logger.warn('Post not found for update', { postId: req.params.postId }, req.requestId);
       return res.status(404).json({ error: 'Post not found' });
     }
     const postData = postDoc.data();
-    if (postData.username !== username) {
+    if (postData.userId !== userId) {
+      logger.warn('Unauthorized post update attempt', { postId: req.params.postId, userId }, req.requestId);
       return res.status(403).json({ error: 'Unauthorized to update this post' });
     }
     await postRef.update({
       content: content !== undefined ? content : postData.content,
       imageUrl: imageUrl !== undefined ? imageUrl : postData.imageUrl,
     });
+    logger.info('Post updated successfully', { postId: req.params.postId, userId }, req.requestId);
     res.status(200).json({ message: 'Post updated' });
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to update post', error, req.requestId);
     res.status(500).json({ error: 'Failed to update post' });
   }
 });
@@ -101,21 +108,23 @@ router.put('/posts/:postId', authenticateToken, async (req, res) => {
 // Delete a post
 router.delete('/posts/:postId', authenticateToken, async (req, res) => {
   try {
-    const username = req.user.username;
+    const userId = req.user.id;
     const postRef = db.collection('posts').doc(req.params.postId);
     const postDoc = await postRef.get();
-    console.log(req?.requestId, postDoc);
     if (!postDoc.exists) {
+      logger.warn('Post not found for deletion', { postId: req.params.postId }, req.requestId);
       return res.status(404).json({ error: 'Post not found' });
     }
     const postData = postDoc.data();
-    if (postData.username !== username) {
+    if (postData.userId !== userId) {
+      logger.warn('Unauthorized post deletion attempt', { postId: req.params.postId, userId }, req.requestId);
       return res.status(403).json({ error: 'Unauthorized to delete this post' });
     }
     await postRef.delete();
+    logger.info('Post deleted successfully', { postId: req.params.postId, userId }, req.requestId);
     res.status(200).json({ message: 'Post deleted' });
   } catch (error) {
-    console.error(req.requestId, error);
+    logger.error('Failed to delete post', error, req.requestId);
     res.status(500).json({ error: 'Failed to delete post' });
   }
 });
