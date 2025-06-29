@@ -4,19 +4,23 @@ const express = require('express');
 const functions = require('firebase-functions');
 const cors = require('cors');
 const app = express()
-const requestId = require('express-request-id')();
 
 const userService = require('./src/user-service');
 const { authenticateToken } = require('./utils/auth');
 const { userRequiredParameters, loginRequiredParameters } = require('./utils/constant');
 const { getdataValidationMiddleware } = require('./utils/dataValidation');
 const newsfeedRoutes = require('./src/newsfeed-routes');
+const { v4: uuidv4 } = require('uuid');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(requestId);
+
+app.use((req, res, next) => {
+  req.requestId = uuidv4();
+  next();
+});
 
 app.post('/login',getdataValidationMiddleware(loginRequiredParameters), userService.login);
 
