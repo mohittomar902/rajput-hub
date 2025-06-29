@@ -20,6 +20,7 @@ router.post('/posts', authenticateToken, async (req, res) => {
     console.log(docRef, username);
     res.status(201).json({ id: docRef.id, ...post });
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to create post' });
   }
 });
@@ -34,6 +35,7 @@ router.post('/posts/:postId/like', authenticateToken, async (req, res) => {
     });
     res.status(200).json({ message: 'Post liked' });
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to like post' });
   }
 });
@@ -54,6 +56,7 @@ router.post('/posts/:postId/comment', authenticateToken, async (req, res) => {
     });
     res.status(200).json({ message: 'Comment added' });
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to add comment' });
   }
 });
@@ -65,6 +68,7 @@ router.get('/posts', authenticateToken, async (req, res) => {
     const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.status(200).json(posts);
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
@@ -89,6 +93,7 @@ router.put('/posts/:postId', authenticateToken, async (req, res) => {
     });
     res.status(200).json({ message: 'Post updated' });
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to update post' });
   }
 });
@@ -99,6 +104,7 @@ router.delete('/posts/:postId', authenticateToken, async (req, res) => {
     const username = req.user.username;
     const postRef = db.collection('posts').doc(req.params.postId);
     const postDoc = await postRef.get();
+    console.log(req?.requestId, postDoc);
     if (!postDoc.exists) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -109,6 +115,7 @@ router.delete('/posts/:postId', authenticateToken, async (req, res) => {
     await postRef.delete();
     res.status(200).json({ message: 'Post deleted' });
   } catch (error) {
+    console.error(req.requestId, error);
     res.status(500).json({ error: 'Failed to delete post' });
   }
 });

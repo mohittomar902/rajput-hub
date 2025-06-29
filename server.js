@@ -4,6 +4,7 @@ const express = require('express');
 const functions = require('firebase-functions');
 const cors = require('cors');
 const app = express()
+const requestId = require('express-request-id')();
 
 const userService = require('./src/user-service');
 const { authenticateToken } = require('./utils/auth');
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(requestId);
 
 app.post('/login',getdataValidationMiddleware(loginRequiredParameters), userService.login);
 

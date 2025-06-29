@@ -88,6 +88,7 @@ module.exports.verifyEmailAndPhone = async (req, res) => {
 
         res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
     } catch (error) {
+        console.error(req.requestId, error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -129,7 +130,7 @@ module.exports.login = async (req, res) => {
 
         const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET_KEY);
 
-        res.status(200).json(getResponseBody(200, 'logged in', { token }));
+        res.status(200).json(getResponseBody(200, 'logged in', { token, requestId: req?.requestId }));
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

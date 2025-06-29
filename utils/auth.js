@@ -14,6 +14,7 @@ module.exports.authenticateToken = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (err) {
+        console.error(req.requestId, err);
         res.status(400).send({ error: 'Invalid token.', err });
     }
 }
