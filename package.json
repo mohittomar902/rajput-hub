@@ -2,7 +2,7 @@
     "name": "rajput-youth",
     "version": "1.0.0",
     "description": "An app that manages user-related data, provides APIs for creating and updating user data, and facilitates interaction between them.",
-    "main": "index.js",
+    "main": "server.js",
     "scripts": {
         "start": "node server.js",
         "dev": "nodemon server.js",

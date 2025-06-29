@@ -22,6 +22,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  console.log(red)
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.post('/login',getdataValidationMiddleware(loginRequiredParameters), userService.login);
 
 app.post('/register',
@@ -38,7 +44,10 @@ app.use('/newsfeed', newsfeedRoutes);
 
 exports.app = functions.https.onRequest(app);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Only start the server if not in Firebase Functions environment
+if (process.env.NODE_ENV !== 'production' || !process.env.FIREBASE_FUNCTIONS) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
