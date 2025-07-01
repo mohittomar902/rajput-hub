@@ -27,8 +27,8 @@ router.get('/:slug', async (req, res) => {
     const { slug } = req.params;
     const doc = await db.collection('history').doc(slug).get();
     if (!doc.exists) {
-      logger.warn('History record not found', { slug }, req.requestId);
-      return ResponseHandler.notFound(res, 'History record not found');
+      logger.warn('History page not found', { slug }, req.requestId);
+      return ResponseHandler.pageNotFound(res, 'History page not found');
     }
     logger.info('History record retrieved', { slug }, req.requestId);
     return ResponseHandler.success(res, doc.data(), 'History record retrieved');
@@ -38,4 +38,4 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

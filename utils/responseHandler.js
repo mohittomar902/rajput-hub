@@ -21,6 +21,10 @@ class ResponseHandler {
     return this.error(res, message, 404, data);
   }
 
+  static pageNotFound(res, message = 'Page not found', data = null) {
+    return this.success(res, message, 1004, data);
+  }
+
   static badRequest(res, message = 'Bad request', data = null) {
     return this.error(res, message, 400, data);
   }
