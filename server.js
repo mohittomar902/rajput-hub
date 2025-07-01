@@ -10,6 +10,7 @@ const logger = require('./utils/logger');
 const ResponseHandler = require('./utils/responseHandler');
 const userRoutes = require('./src/user-routes');
 const authRoutes = require('./src/auth-routes');
+const historyRoutes = require('./src/history-routes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +29,7 @@ app.get('/health', (req, res) => {
 app.use('/newsfeed', newsfeedRoutes);
 app.use('/user', userRoutes);
 app.use('/auth', authRoutes);
+app.use('/history', historyRoutes);
 
 // Error logging middleware (should be last)
 app.use((error, req, res, next) => logger.logError(error, req, res, next));
